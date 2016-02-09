@@ -8,7 +8,7 @@ import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button loginButton;
+    private Button loginButton, uploadButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +20,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, UserActivity.class));
+            }
+        });
+
+        uploadButton = (Button) findViewById(R.id.upload);
+        uploadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, UploadActivity.class));
             }
         });
     }
