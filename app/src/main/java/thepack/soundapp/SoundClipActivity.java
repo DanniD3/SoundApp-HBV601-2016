@@ -1,9 +1,9 @@
 package thepack.soundapp;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 
-public class SoundClipActivity extends AppCompatActivity {
+public class SoundClipActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
