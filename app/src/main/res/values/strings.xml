@@ -4,6 +4,12 @@
     <string name="title_activity_upload">Upload</string>
     <string name="title_activity_search">Search</string>
 
+    <!-- Strings related to upload -->
+    <string name="upload_placeholder">Please select a file to upload</string>
+    <string name="upload_button">Choose file</string>
+    <string name="upload_name">Name: </string>
+    <string name="upload_size">Size: </string>
+
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password (optional)</string>
