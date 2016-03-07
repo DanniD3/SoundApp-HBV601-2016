@@ -1,4 +1,4 @@
-package thepack.soundapp;
+package thepack.soundapp.models;
 
 public class Navigation {
 
