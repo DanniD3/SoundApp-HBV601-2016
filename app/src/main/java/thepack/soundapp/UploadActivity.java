@@ -6,13 +6,15 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
 
 public class UploadActivity extends FragmentActivity {
 
-    private Button uploadButton;
+    private Button chooseButton, uploadButton;
+    private TextView titleView;
     private File uploadFile;
     private static final int FILE_SELECT_CODE = 0;
 
@@ -21,15 +23,21 @@ public class UploadActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload);
 
-        uploadButton = (Button) findViewById(R.id.filechoose);
+        titleView = (TextView) findViewById(R.id.uploadTitle);
+        chooseButton = (Button) findViewById(R.id.chooseButton);
+        chooseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent fileChoose = new Intent(UploadActivity.this, FileChooserActivity.class);
+                startActivityForResult(fileChoose, FILE_SELECT_CODE);
+            }
+        });
+        uploadButton = (Button) findViewById(R.id.uploadButton);
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent fileChoose = new Intent();
-                startActivityForResult(
-                        Intent.createChooser(fileChoose, "Select a File to Upload"),
-                        FILE_SELECT_CODE
-                );
+                // TODO Upload selected file to REST controller
+                Toast.makeText(UploadActivity.this, R.string.upload_success, Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -43,7 +51,9 @@ public class UploadActivity extends FragmentActivity {
             if (data == null) {
                 return;
             }
-            uploadFile = new File(data.getStringExtra("Upload File Path"));
+            uploadFile = new File(data.getStringExtra("filepath"));
+            titleView.setText(uploadFile.getName());
+            uploadButton.setEnabled(true);
         }
     }
 }

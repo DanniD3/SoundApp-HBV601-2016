@@ -6,9 +6,10 @@
 
     <!-- Strings related to upload -->
     <string name="upload_placeholder">Please select a file to upload</string>
-    <string name="upload_button">Choose file</string>
-    <string name="upload_name">Name: </string>
-    <string name="upload_size">Size: </string>
+    <string name="upload_choose">Choose file</string>
+    <string name="upload_button">Upload</string>
+    <string name="file_chooser_fill_error">Directory contains invalid paths!</string>
+    <string name="upload_success">Upload is not yet Implemented!</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
