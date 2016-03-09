@@ -4,12 +4,20 @@
     <string name="title_activity_upload">Upload</string>
     <string name="title_activity_search">Search</string>
 
+    <!-- Strings related to HTTP connection -->
+    <string name="REST_API">http://192.168.1.98:8080/rest/api</string>
+    <string name="REST_UPLOAD">http://192.168.1.98:8080/rest/api/soundclip/upload</string>
+    <string name="network_error">No Internet Access Detected!</string>
+    <string name="url_error">Invalid URL!</string>
+
     <!-- Strings related to upload -->
     <string name="upload_placeholder">Please select a file to upload</string>
     <string name="upload_choose">Choose file</string>
     <string name="upload_button">Upload</string>
     <string name="file_chooser_fill_error">Directory contains invalid paths!</string>
-    <string name="upload_success">Upload is not yet Implemented!</string>
+    <string name="file_not_found">Selected File Not Found in Storage!</string>
+    <string name="file_access_fail">Fail Access Failed!</string>
+    <string name="upload_success">Upload is being Tested!</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
