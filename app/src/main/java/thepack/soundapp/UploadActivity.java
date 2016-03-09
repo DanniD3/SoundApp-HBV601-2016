@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Base64;
@@ -12,12 +13,14 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,7 +33,8 @@ public class UploadActivity extends FragmentActivity {
     private File uploadFile;
 
     private static final int FILE_SELECT_CODE = 0;
-    private static final String REST_UPLOAD_URL = R.string.REST_UPLOAD;
+    private static final String REST_UPLOAD_URL =
+            "http://192.168.1.98:8080/rest/api/soundclip/upload";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,9 +61,8 @@ public class UploadActivity extends FragmentActivity {
                     return;
                 }
 
-                new GetUpload().execute();
-//                AsyncTask upload = new UploadTask(uploadFile);
-//                upload.execute();
+//                new GetUpload().execute();
+                new UploadTask(uploadFile).execute();
             }
         });
     }
@@ -118,29 +121,15 @@ public class UploadActivity extends FragmentActivity {
         }
     }
 
-    private class UploadTask extends AsyncTask<Void,Void,Void> {
+    private class UploadTask extends AsyncTask<Void,Void,String> {
 
-        File uploadFile;
+        String encodedFile;
 
         public UploadTask(File uploadFile) {
-            this.uploadFile = uploadFile;
+            this.encodedFile = encodeFile(uploadFile);
         }
 
-        @Override
-        protected Void doInBackground(Void... params) {
-            String encodedFile = encodeFile();
-
-//            URL url = new URL(REST_UPLOAD_URL);
-//            HttpURLConnection conn = (HttpURLConnection) new URL(REST_UPLOAD_URL).openConnection();
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-        }
-
-        private String encodeFile() {
+        private String encodeFile(File uploadFile) {
             InputStream in = null;
             ByteArrayOutputStream out = null;
             String encodedFile = null;
@@ -149,11 +138,11 @@ public class UploadActivity extends FragmentActivity {
                 in = new FileInputStream(uploadFile);
                 out = new ByteArrayOutputStream((int)uploadFile.length());
 
-                int read = in.read(buffer);
-                while (read != -1) {
+                int read = 0;
+                while ((read = in.read(buffer)) != -1) {
                     out.write(buffer, 0, read);
                 }
-                encodedFile = Base64.encodeToString(buffer,Base64.DEFAULT);
+                encodedFile = Base64.encodeToString(out.toByteArray(),Base64.DEFAULT);
             } catch (FileNotFoundException fnfe) {
                 Toast.makeText(UploadActivity.this, R.string.file_not_found, Toast.LENGTH_LONG).show();
                 fnfe.printStackTrace();
@@ -173,5 +162,57 @@ public class UploadActivity extends FragmentActivity {
             }
             return encodedFile;
         }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            String response = "No response";
+            HttpURLConnection conn = null;
+            try {
+                conn = (HttpURLConnection) new URL(REST_UPLOAD_URL).openConnection();
+                conn.setRequestMethod("POST");
+                conn.setDoOutput(true);
+//                conn.setChunkedStreamingMode(0);
+
+                // Upload encodedFile to server
+                String POST_PARAM = "encodedFile=" + encodedFile;
+                OutputStream sOut = conn.getOutputStream();
+                sOut.write(POST_PARAM.getBytes());
+                sOut.flush();
+                sOut.close();
+
+                // Get response from server
+                if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                    throw new IOException(conn.getResponseMessage() +": with " + REST_UPLOAD_URL);
+                }
+                InputStream in = conn.getInputStream();
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                int bytesRead = 0;
+                byte[] buffer = new byte[1024];
+                while ((bytesRead = in.read(buffer)) > 0) {
+                    out.write(buffer, 0, bytesRead);
+                }
+                out.close();
+                response = new String(out.toByteArray());
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                conn.disconnect();
+            }
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            Toast.makeText(UploadActivity.this, s, Toast.LENGTH_LONG).show();
+            storeToDownloads(s);
+        }
+    }
+
+    private void storeToDownloads(String encodedFile) {
+        File curDir = new File(Environment.getDownloadCacheDirectory().getPath());
+
     }
 }
