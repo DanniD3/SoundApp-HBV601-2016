@@ -17,7 +17,7 @@
     <string name="upload_success">Upload is being Tested!</string>
     <string name="file_chooser_fill_error">Directory contains invalid paths!</string>
     <string name="file_not_found">Selected File Not Found in Storage!</string>
-    <string name="file_access_fail">Fail Access Failed!</string>
+    <string name="file_access_fail">File Access Failed!</string>
     <string name="file_invalid">Invalid File Selected!</string>
 
 

@@ -1,10 +1,13 @@
 package thepack.soundapp.utils;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
 import android.widget.Toast;
 
 public class Util {
-    public void displayText(Context activityContext, String text, int duraction) {
-        Toast.makeText(activityContext, text, duraction).show();
+    public static boolean isNetworkAvailableAndConnected(Context c, String CONNECTIVITY_SERVICE) {
+        ConnectivityManager cm = (ConnectivityManager) c.getSystemService(CONNECTIVITY_SERVICE);
+        boolean isNetworkAvailable = cm.getActiveNetworkInfo() != null;
+        return isNetworkAvailable && cm.getActiveNetworkInfo().isConnected();
     }
 }
