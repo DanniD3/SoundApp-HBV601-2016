@@ -66,7 +66,6 @@ public class FileChooserActivity extends ListActivity {
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-        // TODO Auto-generated method stub
         super.onListItemClick(l, v, position, id);
         Option o = adapter.getItem(position);
         if(o.getData().equalsIgnoreCase("folder") ||
@@ -80,7 +79,7 @@ public class FileChooserActivity extends ListActivity {
 
     private void onFileClick(Option o) {
         // TODO Could check type or let Server check type
-        Toast.makeText(this, "File Clicked: "+o.getName(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "File Selected: " + o.getName(), Toast.LENGTH_SHORT).show();
         Intent uploadFile = new Intent();
         uploadFile.putExtra("filepath", o.getPath());
         setResult(Activity.RESULT_OK, uploadFile);
