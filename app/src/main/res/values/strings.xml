@@ -14,10 +14,12 @@
     <string name="upload_placeholder">Please select a file to upload</string>
     <string name="upload_choose">Choose file</string>
     <string name="upload_button">Upload</string>
+    <string name="upload_success">Upload is being Tested!</string>
     <string name="file_chooser_fill_error">Directory contains invalid paths!</string>
     <string name="file_not_found">Selected File Not Found in Storage!</string>
     <string name="file_access_fail">Fail Access Failed!</string>
-    <string name="upload_success">Upload is being Tested!</string>
+    <string name="file_invalid">Invalid File Selected!</string>
+
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
