@@ -2,14 +2,11 @@ package thepack.soundapp;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Base64;
-import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
@@ -73,7 +70,7 @@ public class UploadActivity extends FragmentActivity {
 
                 // Check for Internet connection
                 if (!Util.isNetworkAvailableAndConnected(UploadActivity.this, CONNECTIVITY_SERVICE)) {
-                    Toast.makeText(UploadActivity.this, R.string.network_error, Toast.LENGTH_LONG).show();
+                    Toast.makeText(UploadActivity.this, R.string.error_no_network, Toast.LENGTH_LONG).show();
                     return;
                 }
 
@@ -91,44 +88,6 @@ public class UploadActivity extends FragmentActivity {
             uploadFile = new File(data.getStringExtra("filepath"));
             titleView.setText(uploadFile.getName());
             uploadButton.setEnabled(true);
-        }
-    }
-
-    // GET request template
-    private class GetStringRequest extends AsyncTask<Void,Void,String> {
-
-        @Override
-        protected String doInBackground(Void... params) {
-            String response = "No response";
-            HttpURLConnection conn = null;
-            try {
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                conn = (HttpURLConnection) new URL(REST_UPLOAD_URL).openConnection();
-                InputStream in = conn.getInputStream();
-                if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    throw new IOException(conn.getResponseMessage() +": with " + REST_UPLOAD_URL);
-                }
-                int bytesRead = 0;
-                byte[] buffer = new byte[1024];
-                while ((bytesRead= in.read(buffer)) > 0) {
-                    out.write(buffer, 0, bytesRead);
-                }
-                out.close();
-                response = new String(out.toByteArray());
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                conn.disconnect();
-            }
-            return response;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            Toast.makeText(UploadActivity.this, s, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -194,7 +153,7 @@ public class UploadActivity extends FragmentActivity {
                 conn.setDoOutput(true);
                 conn.setChunkedStreamingMode(2048);
 
-                // POST Upload encodedFile to server
+                // POST Upload JSON SoundClip
                 JSONObject POST_PARAM = new JSONObject();
                 POST_PARAM.put("name", fileName);
                 POST_PARAM.put("ext", fileExt);
@@ -203,34 +162,19 @@ public class UploadActivity extends FragmentActivity {
                 POST_PARAM.put("isPrivate", isPrivate);
                 POST_PARAM.put("url", null);
 
-                OutputStream sOut = new BufferedOutputStream(conn.getOutputStream());
-                sOut.write(POST_PARAM.toString().getBytes("UTF-8"));
-                sOut.flush();
-                sOut.close();
+                Util.sendPostJSON(conn, POST_PARAM);
 
                 // Get response from server
-                if (conn.getResponseCode() != HttpURLConnection.HTTP_OK &&
-                        conn.getResponseCode() != HttpURLConnection.HTTP_CREATED &&
-                        conn.getResponseCode() != HttpURLConnection.HTTP_ACCEPTED) {
+                if (conn.getResponseCode() != HttpURLConnection.HTTP_ACCEPTED) {
                     throw new IOException(conn.getResponseMessage() +": with " + REST_UPLOAD_URL);
                 }
-                InputStream in = conn.getInputStream();
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                int bytesRead = 0;
-                byte[] buffer = new byte[1024];
-                while ((bytesRead = in.read(buffer)) > 0) {
-                    out.write(buffer, 0, bytesRead);
-                }
-                out.close();
-                response = new String(out.toByteArray());
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
+                response = Util.getResponseString(conn);
+            } catch (IOException | JSONException e) {
                 e.printStackTrace();
             } finally {
-                conn.disconnect();
+                if (conn != null) {
+                    conn.disconnect();
+                }
             }
             return response;
         }
