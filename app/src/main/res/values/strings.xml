@@ -7,8 +7,9 @@
     <!-- Strings related to HTTP connection -->
     <string name="REST_API">http://192.168.1.98:8080/rest/api</string>
     <string name="REST_UPLOAD">http://192.168.1.98:8080/rest/api/soundclip/upload</string>
-    <string name="network_error">No Internet Access Detected!</string>
-    <string name="url_error">Invalid URL!</string>
+    <string name="error_no_network">No Internet Access Detected!</string>
+    <string name="error_bad_url">Invalid URL!</string>
+    <string name="error_field_required">This field is required</string>
 
     <!-- Strings related to upload -->
     <string name="upload_placeholder">Please select a file to upload</string>
@@ -20,6 +21,9 @@
     <string name="file_access_fail">File Access Failed!</string>
     <string name="file_invalid">Invalid File Selected!</string>
 
+    <!-- Strings related to search -->
+    <string name="prompt_query">Search</string>
+    <string name="search_button">Search</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
@@ -29,7 +33,6 @@
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
-    <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
