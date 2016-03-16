@@ -39,7 +39,7 @@ public class UploadActivity extends FragmentActivity {
 
     private static final int FILE_SELECT_CODE = 0;
     private static final String REST_UPLOAD_URL =
-            "http://192.168.1.98:8080/rest/api/soundclip/crud/";
+            "http://127.0.0.1:8080/rest/api/soundclip/crud/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

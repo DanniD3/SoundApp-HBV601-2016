@@ -43,7 +43,7 @@ public class LoginActivity extends FragmentActivity {
      * Id to identity READ_CONTACTS permission request.
      */
     private static final String REST_USER_URL =
-            "http://192.168.1.98:8080/rest/api/user/crud/";
+            "http://127.0.0.1:8080/rest/api/user/crud/";
 
 
     /**
