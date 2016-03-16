@@ -268,6 +268,7 @@ public class LoginActivity extends FragmentActivity {
                 Toast.makeText(LoginActivity.this, R.string.error_incorrect_name, Toast.LENGTH_LONG).show();
             } else {
                 if (!responseUser.getPw().equals(mPassword)) {
+                    // TODO mPassword needs to be hashed when we do hash
                     Toast.makeText(LoginActivity.this, R.string.error_incorrect_password, Toast.LENGTH_LONG).show();
                 } else {
                     finish();
