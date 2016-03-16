@@ -125,6 +125,8 @@ public class SoundClipActivity extends FragmentActivity {
         protected void onPostExecute(List<SoundResult> soundResults) {
             super.onPostExecute(soundResults);
             // TODO Display the results
+            String numResultsDisplay = "There are " + soundResults.size() + " results matching your query";
+            Toast.makeText(SoundClipActivity.this, numResultsDisplay, Toast.LENGTH_LONG).show();
         }
 
         @Override
