@@ -12,7 +12,8 @@ public class SoundClip {
     public SoundClip() {
     }
 
-    public SoundClip(String name, String ext, String data, String uploader, boolean isPrivate) {
+    public SoundClip(Long id, String name, String ext, String data, String uploader, boolean isPrivate) {
+        this.id = id;
         this.name = name;
         this.ext = ext;
         this.data = data;

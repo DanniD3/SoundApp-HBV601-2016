@@ -10,11 +10,8 @@ import android.widget.Toast;
 
 import org.json.JSONException;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
@@ -113,7 +110,7 @@ public class SoundClipActivity extends FragmentActivity {
                     if (conn.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) cancel(true);
                     throw new IOException(conn.getResponseMessage() +": with " + REST_SEARCH_URL + query);
                 }
-                results = Util.parseResultJson(Util.getResponseString(conn));
+                results = Util.parseSoundClipJson(Util.getResponseString(conn));
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
             } finally {

@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -30,6 +31,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import thepack.soundapp.entities.User;
 import thepack.soundapp.utils.Util;
 
 import static android.Manifest.permission.READ_CONTACTS;
@@ -44,7 +46,6 @@ public class LoginActivity extends FragmentActivity {
      */
     private static final String REST_USER_URL =
             "http://127.0.0.1:8080/rest/api/user/crud/";
-
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -228,7 +229,7 @@ public class LoginActivity extends FragmentActivity {
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    private class UserLoginTask extends AsyncTask<Void, Void, Integer> {
+    private class UserLoginTask extends AsyncTask<Void, Void, User> {
 
         private final String mName;
         private final String mPassword;
@@ -239,47 +240,40 @@ public class LoginActivity extends FragmentActivity {
         }
 
         @Override
-        protected Integer doInBackground(Void... params) {
-            int responseCode = 0;
+        protected User doInBackground(Void... params) {
+            User responseUser = null;
             HttpURLConnection conn = null;
-
             try {
-                conn = (HttpURLConnection) new URL(REST_USER_URL).openConnection();
+                conn = (HttpURLConnection) new URL(REST_USER_URL + mName).openConnection();
                 if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    throw new IOException(conn.getResponseMessage() +": with " + REST_USER_URL + mName);
+                    throw new IOException(conn.getResponseMessage() +": with " + REST_USER_URL);
                 }
-                responseCode = conn.getResponseCode();
-            } catch (IOException e) {
+                responseUser = Util.parseUserJson(Util.getResponseString(conn));
+            } catch (IOException | JSONException e) {
                 e.printStackTrace();
             } finally {
                 if (conn != null) {
                     conn.disconnect();
                 }
             }
-
-            return responseCode;
+            return responseUser;
         }
 
         @Override
-        protected void onPostExecute(final Integer responseCode) {
+        protected void onPostExecute(User responseUser) {
             mAuthTask = null;
             showProgress(false);
 
-            if (responseCode != HttpURLConnection.HTTP_OK) {
-                try {
-                    throw new IOException(responseCode + ": with " + REST_USER_URL);
-                } catch (IOException e) {
-                    e.printStackTrace();
+            if (responseUser == null) {
+                Toast.makeText(LoginActivity.this, R.string.error_incorrect_name, Toast.LENGTH_LONG).show();
+            } else {
+                if (!responseUser.getPw().equals(mPassword)) {
+                    Toast.makeText(LoginActivity.this, R.string.error_incorrect_password, Toast.LENGTH_LONG).show();
+                } else {
+                    finish();
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
                 }
             }
-
-            else {
-                finish();
-                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-            }
-
-            mPasswordView.setError(getString(R.string.error_incorrect_password));
-            mPasswordView.requestFocus();
         }
 
         @Override

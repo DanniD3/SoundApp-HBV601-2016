@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import thepack.soundapp.entities.SoundResult;
+import thepack.soundapp.entities.User;
 
 public class Util {
 
@@ -46,7 +47,7 @@ public class Util {
         return new String(out.toByteArray());
     }
 
-    public static List<SoundResult> parseResultJson(String jsonString) throws JSONException {
+    public static List<SoundResult> parseSoundClipJson(String jsonString) throws JSONException {
         List<SoundResult> soundResults = new ArrayList<>();
         JSONArray jsonResults = new JSONArray(jsonString);
 
@@ -61,5 +62,15 @@ public class Util {
             ));
         }
         return soundResults;
+    }
+
+    public static User parseUserJson(String jsonString) throws JSONException {
+        JSONObject userJson = new JSONObject(jsonString);
+
+        return new User(
+                userJson.getLong("id"),
+                userJson.getString("name"),
+                userJson.getString("pw")
+        );
     }
 }
