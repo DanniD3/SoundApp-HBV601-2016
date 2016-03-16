@@ -98,43 +98,6 @@ public class LoginActivity extends FragmentActivity {
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
-    /*
-    private boolean mayRequestContacts() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return true;
-        }
-        if (checkSelfPermission(READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
-            Snackbar.make(mNameView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(android.R.string.ok, new OnClickListener() {
-                        @Override
-                        @TargetApi(Build.VERSION_CODES.M)
-                        public void onClick(View v) {
-                            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-                        }
-                    });
-        } else {
-            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-        }
-        return false;
-    }
-
-    */
-
-    /**
-     * Callback received when a permissions request has been completed.
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_READ_CONTACTS) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                populateAutoComplete();
-            }
-        }
-    } */
-
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -157,8 +120,8 @@ public class LoginActivity extends FragmentActivity {
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(pw)) {
+        // Check for a valid password
+        if (TextUtils.isEmpty(pw)) {
             mPasswordView.setError(getString(R.string.error_incorrect_password));
             focusView = mPasswordView;
             cancel = true;
@@ -279,24 +242,21 @@ public class LoginActivity extends FragmentActivity {
         protected Integer doInBackground(Void... params) {
             int responseCode = 0;
             HttpURLConnection conn = null;
+
             try {
                 conn = (HttpURLConnection) new URL(REST_USER_URL).openConnection();
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type", "application/json");
-                conn.setDoOutput(true);
-                conn.setChunkedStreamingMode(2048);
-
-                // POST Upload JSON SoundClip
-                JSONObject POST_PARAM = new JSONObject();
-                POST_PARAM.put("name", mName);
-                POST_PARAM.put("pw", mPassword);
-
-                Util.sendPostJSON(conn, POST_PARAM);
+                if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                    throw new IOException(conn.getResponseMessage() +": with " + REST_USER_URL + mName);
+                }
                 responseCode = conn.getResponseCode();
-
-            } catch (IOException | JSONException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                if (conn != null) {
+                    conn.disconnect();
+                }
             }
+
             return responseCode;
         }
 
@@ -314,12 +274,12 @@ public class LoginActivity extends FragmentActivity {
             }
 
             else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                finish();
+                startActivity(new Intent(LoginActivity.this, MainActivity.class));
             }
 
-            finish();
-            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            mPasswordView.setError(getString(R.string.error_incorrect_password));
+            mPasswordView.requestFocus();
         }
 
         @Override
