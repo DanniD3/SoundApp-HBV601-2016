@@ -4,13 +4,10 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.view.View;
@@ -24,17 +21,13 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import thepack.soundapp.entities.User;
 import thepack.soundapp.utils.Util;
-
-import static android.Manifest.permission.READ_CONTACTS;
 
 /**
  * A login screen that offers login via email/password.
@@ -67,6 +60,7 @@ public class LoginActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
         // Set up the login form.
         mNameView = (EditText) findViewById(R.id.name);
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -264,11 +258,12 @@ public class LoginActivity extends FragmentActivity {
             mAuthTask = null;
             showProgress(false);
 
+            // TODO: User Registration
             if (responseUser == null) {
                 Toast.makeText(LoginActivity.this, R.string.error_incorrect_name, Toast.LENGTH_LONG).show();
             } else {
                 if (!responseUser.getPw().equals(mPassword)) {
-                    // TODO mPassword needs to be hashed when we do hash
+                    // TODO mPassword hashing
                     Toast.makeText(LoginActivity.this, R.string.error_incorrect_password, Toast.LENGTH_LONG).show();
                 } else {
                     finish();
