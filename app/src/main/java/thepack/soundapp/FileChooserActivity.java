@@ -41,14 +41,14 @@ public class FileChooserActivity extends ListActivity {
             for(File ff: dirs)
             {
                 if(ff.isDirectory())
-                    dir.add(new Option(ff.getName(),"Folder",ff.getAbsolutePath()));
+                    dir.add(new Option(ff.getName(), "Folder", ff.getAbsolutePath()));
                 else
                 {
                     fls.add(new Option(ff.getName(),"File Size: "+ff.length(),ff.getAbsolutePath()));
                 }
             }
         } catch(Exception e) {
-            Toast.makeText(this,R.string.file_chooser_fill_error,Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,e.toString(),Toast.LENGTH_SHORT).show();
         }
         Collections.sort(dir);
         Collections.sort(fls);
