@@ -110,7 +110,7 @@ public class SoundClipActivity extends FragmentActivity {
                     if (conn.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) cancel(true);
                     throw new IOException(conn.getResponseMessage() +": with " + REST_SEARCH_URL + query);
                 }
-                results = Util.parseSoundClipJson(Util.getResponseString(conn));
+                results = Util.parseSoundResultJson(Util.getResponseString(conn));
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
             } finally {

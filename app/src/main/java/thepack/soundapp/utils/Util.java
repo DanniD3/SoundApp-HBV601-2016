@@ -47,7 +47,7 @@ public class Util {
         return new String(out.toByteArray());
     }
 
-    public static List<SoundResult> parseSoundClipJson(String jsonString) throws JSONException {
+    public static List<SoundResult> parseSoundResultJson(String jsonString) throws JSONException {
         List<SoundResult> soundResults = new ArrayList<>();
         JSONArray jsonResults = new JSONArray(jsonString);
 
