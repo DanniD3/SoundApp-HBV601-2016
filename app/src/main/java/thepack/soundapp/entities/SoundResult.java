@@ -1,6 +1,8 @@
 package thepack.soundapp.entities;
 
-public class SoundResult {
+import java.io.Serializable;
+
+public class SoundResult implements Serializable {
 
     private Long id;
     private String name;

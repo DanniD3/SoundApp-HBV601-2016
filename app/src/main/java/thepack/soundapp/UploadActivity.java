@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.util.Base64;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
@@ -16,12 +15,8 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -80,8 +75,8 @@ public class UploadActivity extends FragmentActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK && requestCode == FILE_SELECT_CODE) {
-            if (data == null)  return;
-
+            if (data == null) return;
+            // Retrieves file uri from FileChooserActivity
             uploadFile = new File(data.getStringExtra("filepath"));
             titleView.setText(uploadFile.getName());
             uploadButton.setEnabled(true);
@@ -97,50 +92,11 @@ public class UploadActivity extends FragmentActivity {
         boolean isPrivate;
 
         public UploadTask(File uploadFile, String upFileExt) {
-            this.fileEncData = encodeFile(uploadFile);
+            this.fileEncData = Util.encodeFile(UploadActivity.this, uploadFile);
             this.fileName = uploadFile.getName();
             this.fileExt = upFileExt;
             this.uploader = null;
             this.isPrivate = false;
-        }
-
-        /*
-            Extract file data from actual file in storage and encode for transfer
-            @params uploadFile is the file link in storage to be transferred
-         */
-        private String encodeFile(File uploadFile) {
-            InputStream in = null;
-            ByteArrayOutputStream out = null;
-            String data = null;
-            try {
-                byte[] buffer = new byte[2048];
-                in = new FileInputStream(uploadFile);
-                out = new ByteArrayOutputStream((int)uploadFile.length());
-
-                int read = 0;
-                while ((read = in.read(buffer)) != -1) {
-                    out.write(buffer, 0, read);
-                }
-                data = Base64.encodeToString(out.toByteArray(), Base64.DEFAULT);
-                Toast.makeText(UploadActivity.this, Integer.toString(data.length()), Toast.LENGTH_LONG).show();
-            } catch (FileNotFoundException fnfe) {
-                Toast.makeText(UploadActivity.this, R.string.file_not_found, Toast.LENGTH_LONG).show();
-                fnfe.printStackTrace();
-            } catch (IOException e) {
-                Toast.makeText(UploadActivity.this, R.string.file_access_fail, Toast.LENGTH_LONG).show();
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (in != null)
-                        in.close();
-                    if (out != null)
-                        out.close();
-                } catch (IOException e) {
-                    Toast.makeText(UploadActivity.this, R.string.file_access_fail, Toast.LENGTH_LONG).show();
-                    e.printStackTrace();
-                }
-            }
-            return data;
         }
 
         @Override
@@ -162,20 +118,20 @@ public class UploadActivity extends FragmentActivity {
                 POST_PARAM.put("uploader", uploader);
                 POST_PARAM.put("isPrivate", isPrivate);
                 POST_PARAM.put("url", null);
-
                 Util.sendPostJSON(conn, POST_PARAM);
 
-                // Get response from server
                 if (conn.getResponseCode() != HttpURLConnection.HTTP_ACCEPTED) {
-                    throw new IOException(conn.getResponseMessage() +": with " + REST_UPLOAD_URL);
+                    // Check for server response
+                    if (conn.getResponseCode() == HttpURLConnection.HTTP_CONFLICT)
+                        cancel(true);
+                    else
+                        throw new IOException(conn.getResponseMessage() +": with " + REST_UPLOAD_URL);
                 }
-                response = Util.getResponseString(conn);
+                // Receive uploaded file location from server
+                response = conn.getHeaderField("Location");
+                conn.disconnect();
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
-            } finally {
-                if (conn != null) {
-                    conn.disconnect();
-                }
             }
             return response;
         }
@@ -183,8 +139,15 @@ public class UploadActivity extends FragmentActivity {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            if (!s.isEmpty())
-                Toast.makeText(UploadActivity.this, s, Toast.LENGTH_LONG).show();
+            Toast.makeText(UploadActivity.this, s, Toast.LENGTH_LONG).show();
+            finish();
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            String conflict = "A SoundClip with name " + fileName + " already exist";
+            Toast.makeText(UploadActivity.this, conflict, Toast.LENGTH_LONG).show();
         }
     }
 }

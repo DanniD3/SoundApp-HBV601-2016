@@ -1,10 +1,9 @@
 package thepack.soundapp;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -21,7 +20,6 @@ import java.net.URL;
 import java.util.List;
 
 import thepack.soundapp.adapters.SoundResultAdapter;
-import thepack.soundapp.entities.SoundClip;
 import thepack.soundapp.entities.SoundResult;
 import thepack.soundapp.utils.Util;
 
@@ -30,15 +28,15 @@ public class SoundClipActivity extends FragmentActivity {
     private Button searchButton;
     private MultiAutoCompleteTextView searchField;
     private ListView resultListView;
-    private SoundResultAdapter srAdapter;
 
+    private SoundResultAdapter srAdapter;
     private List<SoundResult> results;
 
     private static final String REST_SEARCH_URL =
             "http://" + Util.HOST_URL + "/rest/api/soundclip/crud/";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sound_clip);
 
@@ -80,8 +78,18 @@ public class SoundClipActivity extends FragmentActivity {
                 } else {
                     // Show a progress spinner, and kick off a background task to search
 //                    showProgress(true);
+
+                    // Reset input tools
                     searchField.setError(null);
                     Util.hideKeyboardFromView(SoundClipActivity.this, searchField);
+
+                    // Check for Internet connection
+                    if (!Util.isNetworkAvailableAndConnected(SoundClipActivity.this, CONNECTIVITY_SERVICE)) {
+                        Toast.makeText(SoundClipActivity.this, R.string.error_no_network, Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    // Do search
                     new SearchTask().execute(query);
                 }
             }
@@ -90,8 +98,13 @@ public class SoundClipActivity extends FragmentActivity {
         resultListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                /*
+                    Display the details of the selected SoundResult in another activity
+                 */
                 SoundResult sr = (SoundResult) resultListView.getItemAtPosition(position);
-                new FetchTask(sr.getId()).execute();
+                Intent detailActivity = new Intent(SoundClipActivity.this, SoundDetailActivity.class);
+                detailActivity.putExtra("SoundResult", sr);
+                startActivity(detailActivity);
             }
         });
     }
@@ -162,24 +175,20 @@ public class SoundClipActivity extends FragmentActivity {
             List<SoundResult> results = null;
 
             // Send search request to server
-            HttpURLConnection conn = null;
             try {
-                conn = (HttpURLConnection) new URL(REST_SEARCH_URL + query).openConnection();
+                HttpURLConnection conn = (HttpURLConnection) new URL(REST_SEARCH_URL + query).openConnection();
+                // Check for server response
                 if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    // Check for server response
                     if (conn.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND)
                         cancel(true);
                     else
                         throw new IOException(conn.getResponseMessage() +": with " + REST_SEARCH_URL + query);
                 }
                 // Receive response data from server
-                results = Util.parseSoundResultJson(Util.getResponseString(conn));
+                results = Util.parseSoundResultListJson(Util.getResponseString(conn));
+                conn.disconnect();
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
-            } finally {
-                if (conn != null) {
-                    conn.disconnect();
-                }
             }
             return results;
         }
@@ -200,48 +209,6 @@ public class SoundClipActivity extends FragmentActivity {
 
             clearResults();
             Toast.makeText(SoundClipActivity.this, "No Results found", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private class FetchTask extends AsyncTask<Void, Void, SoundClip> {
-
-        private long id;
-
-        public FetchTask(long id) {
-            id = id;
-        }
-
-        @Override
-        protected SoundClip doInBackground(Void... params) {
-            SoundClip sc = null;
-            // TODO retrieve selected file
-            // Send search request to server
-            HttpURLConnection conn = null;
-            try {
-                conn = (HttpURLConnection) new URL(REST_SEARCH_URL).openConnection();
-                if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    // Check for server response
-                    if (conn.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND)
-                        cancel(true);
-                    else
-                        throw new IOException(conn.getResponseMessage() +": with " + REST_SEARCH_URL);
-                }
-                // Receive response data from server
-                results = Util.parseSoundResultJson(Util.getResponseString(conn));
-            } catch (IOException | JSONException e) {
-                e.printStackTrace();
-            } finally {
-                if (conn != null) {
-                    conn.disconnect();
-                }
-            }
-            return sc;
-        }
-
-        @Override
-        protected void onPostExecute(SoundClip soundClip) {
-            super.onPostExecute(soundClip);
-            Toast.makeText(SoundClipActivity.this, "You have selected a sound clip." + id, Toast.LENGTH_LONG).show();
         }
     }
 }
