@@ -1,4 +1,4 @@
-package thepack.soundapp.fileChooser;
+package thepack.soundapp.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,6 +10,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import thepack.soundapp.R;
+import thepack.soundapp.entities.Option;
 
 public class FileArrayAdapter extends ArrayAdapter<Option> {
 

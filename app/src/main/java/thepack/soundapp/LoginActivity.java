@@ -38,7 +38,7 @@ public class LoginActivity extends FragmentActivity {
      * Id to identity READ_CONTACTS permission request.
      */
     private static final String REST_USER_URL =
-            "http://127.0.0.1:8080/rest/api/user/crud/";
+            "http://" + Util.HOST_URL + "/rest/api/user/crud/";
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.

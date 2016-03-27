@@ -2,7 +2,8 @@ package thepack.soundapp.utils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.widget.Toast;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,6 +22,9 @@ import thepack.soundapp.entities.SoundResult;
 import thepack.soundapp.entities.User;
 
 public class Util {
+
+    public static final String HOST_URL = "192.168.1.98:8080";
+//    public static final String HOST_URL = "127.0.0.1:8080";
 
     public static boolean isNetworkAvailableAndConnected(Context c, String CONNECTIVITY_SERVICE) {
         ConnectivityManager cm = (ConnectivityManager) c.getSystemService(CONNECTIVITY_SERVICE);
@@ -72,5 +76,11 @@ public class Util {
                 userJson.getString("name"),
                 userJson.getString("pw")
         );
+    }
+
+    public static void hideKeyboardFromView(Context c, View v) {
+        InputMethodManager imm = (InputMethodManager) c.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+        v.clearFocus();
     }
 }

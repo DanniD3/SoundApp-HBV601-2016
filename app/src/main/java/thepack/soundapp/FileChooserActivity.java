@@ -13,16 +13,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.nio.*;
 
-import thepack.soundapp.fileChooser.FileArrayAdapter;
-import thepack.soundapp.fileChooser.Option;
+import thepack.soundapp.adapters.FileArrayAdapter;
+import thepack.soundapp.entities.Option;
 
 public class FileChooserActivity extends ListActivity {
 
     private File currentDir;
     private FileArrayAdapter adapter;
-    private static final int FILE_SELECT_CODE = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +29,10 @@ public class FileChooserActivity extends ListActivity {
         fill(currentDir);
     }
 
+    /*
+        Lists all the folders and files of the current directory
+        @params currentDir the File object holding the current directory
+     */
     private void fill(File currentDir) {
         this.setTitle("Current Directory: " + currentDir.getName());
 
@@ -38,12 +40,10 @@ public class FileChooserActivity extends ListActivity {
         List<Option> dir = new ArrayList<Option>();
         List<Option> fls = new ArrayList<Option>();
         try {
-            for(File ff: dirs)
-            {
+            for(File ff: dirs) {
                 if(ff.isDirectory())
                     dir.add(new Option(ff.getName(), "Folder", ff.getAbsolutePath()));
-                else
-                {
+                else {
                     fls.add(new Option(ff.getName(),"File Size: "+ff.length(),ff.getAbsolutePath()));
                 }
             }
@@ -58,7 +58,7 @@ public class FileChooserActivity extends ListActivity {
             dir.add(0,new Option("..","Parent Directory",currentDir.getParent()));
         adapter = new FileArrayAdapter(
                 FileChooserActivity.this,
-                R.layout.activity_file_chooser,
+                R.layout.view_file_chooser,
                 dir
         );
         this.setListAdapter(adapter);
@@ -78,7 +78,6 @@ public class FileChooserActivity extends ListActivity {
     }
 
     private void onFileClick(Option o) {
-        // TODO Could check type or let Server check type
         Toast.makeText(this, "File Selected: " + o.getName(), Toast.LENGTH_SHORT).show();
         Intent uploadFile = new Intent();
         uploadFile.putExtra("filepath", o.getPath());

@@ -16,16 +16,13 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import thepack.soundapp.utils.Util;
@@ -39,7 +36,7 @@ public class UploadActivity extends FragmentActivity {
 
     private static final int FILE_SELECT_CODE = 0;
     private static final String REST_UPLOAD_URL =
-            "http://127.0.0.1:8080/rest/api/soundclip/crud/";
+            "http://" + Util.HOST_URL + "/rest/api/soundclip/crud/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +71,7 @@ public class UploadActivity extends FragmentActivity {
                     return;
                 }
 
-//                new GetStringRequest().execute();
+                // Do upload
                 new UploadTask(uploadFile, upFileExt).execute();
             }
         });
@@ -107,6 +104,10 @@ public class UploadActivity extends FragmentActivity {
             this.isPrivate = false;
         }
 
+        /*
+            Extract file data from actual file in storage and encode for transfer
+            @params uploadFile is the file link in storage to be transferred
+         */
         private String encodeFile(File uploadFile) {
             InputStream in = null;
             ByteArrayOutputStream out = null;

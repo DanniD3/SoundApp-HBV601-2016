@@ -1,4 +1,4 @@
-package thepack.soundapp.fileChooser;
+package thepack.soundapp.entities;
 
 /*
     The entity object of the FileChooserActivity.
