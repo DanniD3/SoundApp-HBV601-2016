@@ -2,6 +2,7 @@ package thepack.soundapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -9,10 +10,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements FragmentNavigationDrawer.FragmentDrawerListener {
 
     private Button loginButton, uploadButton, searchButton;
     private Toolbar toolbar;
+    private FragmentNavigationDrawer drawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +24,11 @@ public class MainActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        drawer = (FragmentNavigationDrawer)
+                getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
+        drawer.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.layout_main), toolbar);
+        drawer.setDrawerListener(this);
 
         loginButton = (Button) findViewById(R.id.login);
         loginButton.setOnClickListener(new View.OnClickListener() {
@@ -68,5 +75,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onDrawerItemSelected(View view, int position) {
+
     }
 }
