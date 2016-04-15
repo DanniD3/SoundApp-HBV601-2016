@@ -22,8 +22,6 @@ import thepack.soundapp.entities.NavDrawerItem;
 
 public class FragmentNavigationDrawer extends Fragment {
 
-    private static String TAG = FragmentNavigationDrawer.class.getSimpleName();
-
     private RecyclerView recyclerView;
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
@@ -31,10 +29,6 @@ public class FragmentNavigationDrawer extends Fragment {
     private View containerView;
     private static String[] titles = null;
     private FragmentDrawerListener drawerListener;
-
-    public FragmentNavigationDrawer() {
-
-    }
 
     public void setDrawerListener(FragmentDrawerListener listener) {
         this.drawerListener = listener;
@@ -44,10 +38,8 @@ public class FragmentNavigationDrawer extends Fragment {
         List<NavDrawerItem> data = new ArrayList<>();
 
         // preparing navigation drawer items
-        for (int i = 0; i < titles.length; i++) {
-            NavDrawerItem navItem = new NavDrawerItem();
-            navItem.setTitle(titles[i]);
-            data.add(navItem);
+        for (String title : titles) {
+            data.add(new NavDrawerItem(false, title));
         }
         return data;
     }
@@ -116,7 +108,6 @@ public class FragmentNavigationDrawer extends Fragment {
                 mDrawerToggle.syncState();
             }
         });
-
     }
 
     public static interface ClickListener {
@@ -142,7 +133,7 @@ public class FragmentNavigationDrawer extends Fragment {
                 public void onLongPress(MotionEvent e) {
                     View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
                     if (child != null && clickListener != null) {
-                        clickListener.onLongClick(child, recyclerView.getChildPosition(child));
+                        clickListener.onLongClick(child, recyclerView.getChildAdapterPosition(child));
                     }
                 }
             });
@@ -153,7 +144,7 @@ public class FragmentNavigationDrawer extends Fragment {
 
             View child = rv.findChildViewUnder(e.getX(), e.getY());
             if (child != null && clickListener != null && gestureDetector.onTouchEvent(e)) {
-                clickListener.onClick(child, rv.getChildPosition(child));
+                clickListener.onClick(child, rv.getChildAdapterPosition(child));
             }
             return false;
         }

@@ -11,19 +11,21 @@
     <string name="drawer_close">Close</string>
 
     <string name="nav_item_home">Home</string>
-    <string name="nav_item_friends">Friends</string>
-    <string name="nav_item_notifications">Messages</string>
+    <string name="nav_item_search">Search</string>
+    <string name="nav_item_upload">Upload</string>
+    <string name="nav_item_login">Sign In</string>
 
     <!-- navigation drawer item labels -->
     <string-array name="nav_drawer_labels">
         <item>@string/nav_item_home</item>
-        <item>@string/nav_item_friends</item>
-        <item>@string/nav_item_notifications</item>
+        <item>@string/nav_item_search</item>
+        <item>@string/nav_item_upload</item>
+        <item>@string/nav_item_login</item>
     </string-array>
 
-    <string name="title_messages">Messages</string>
-    <string name="title_friends">Friends</string>
-    <string name="title_home">Home</string>
+    <string name="title_search">Search</string>
+    <string name="title_upload">Upload</string>
+    <string name="title_login">Sign In</string>
     <!-- End of navigation bar strings -->
 
     <!-- Strings related to HTTP connection -->

@@ -4,9 +4,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.v4.app.FragmentActivity;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.TextView;
@@ -22,32 +25,42 @@ import java.net.URL;
 
 import thepack.soundapp.utils.Util;
 
-public class UploadActivity extends FragmentActivity {
+public class UploadFragment extends Fragment {
 
     private Button chooseButton, uploadButton;
     private TextView titleView;
 
     private File uploadFile;
 
+    private Activity act;
+
     private static final int FILE_SELECT_CODE = 0;
     private static final String REST_UPLOAD_URL =
             "http://" + Util.HOST_URL + "/rest/api/soundclip/crud/";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_upload);
 
-        titleView = (TextView) findViewById(R.id.uploadTitle);
-        chooseButton = (Button) findViewById(R.id.chooseButton);
+        // Store the calling activity for reference
+        act = getActivity();
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_upload, container, false);
+
+        titleView = (TextView) rootView.findViewById(R.id.uploadTitle);
+        chooseButton = (Button) rootView.findViewById(R.id.chooseButton);
         chooseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent fileChoose = new Intent(UploadActivity.this, FileChooserActivity.class);
+                Intent fileChoose = new Intent(act, FileChooserActivity.class);
                 startActivityForResult(fileChoose, FILE_SELECT_CODE);
             }
         });
-        uploadButton = (Button) findViewById(R.id.uploadButton);
+        uploadButton = (Button) rootView.findViewById(R.id.uploadButton);
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -56,13 +69,13 @@ public class UploadActivity extends FragmentActivity {
                 String upFileExt = MimeTypeMap.getFileExtensionFromUrl(uploadFileUri.toString());
                 String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(upFileExt);
                 if (mimeType == null || !mimeType.split("/")[0].equalsIgnoreCase("audio")) {
-                    Toast.makeText(UploadActivity.this, R.string.file_invalid, Toast.LENGTH_LONG).show();
+                    Toast.makeText(act, R.string.file_invalid, Toast.LENGTH_LONG).show();
                     return;
                 }
 
                 // Check for Internet connection
-                if (!Util.isNetworkAvailableAndConnected(UploadActivity.this, CONNECTIVITY_SERVICE)) {
-                    Toast.makeText(UploadActivity.this, R.string.error_no_network, Toast.LENGTH_LONG).show();
+                if (!Util.isNetworkAvailableAndConnected(act, Activity.CONNECTIVITY_SERVICE)) {
+                    Toast.makeText(act, R.string.error_no_network, Toast.LENGTH_LONG).show();
                     return;
                 }
 
@@ -70,10 +83,12 @@ public class UploadActivity extends FragmentActivity {
                 new UploadTask(uploadFile, upFileExt).execute();
             }
         });
+        
+        return rootView;
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK && requestCode == FILE_SELECT_CODE) {
             if (data == null) return;
             // Retrieves file uri from FileChooserActivity
@@ -92,7 +107,7 @@ public class UploadActivity extends FragmentActivity {
         boolean isPrivate;
 
         public UploadTask(File uploadFile, String upFileExt) {
-            this.fileEncData = Util.encodeFile(UploadActivity.this, uploadFile);
+            this.fileEncData = Util.encodeFile(act, uploadFile);
             this.fileName = uploadFile.getName();
             this.fileExt = upFileExt;
             this.uploader = null;
@@ -139,15 +154,15 @@ public class UploadActivity extends FragmentActivity {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            Toast.makeText(UploadActivity.this, s, Toast.LENGTH_LONG).show();
-            finish();
+            Toast.makeText(act, s, Toast.LENGTH_LONG).show();
+            // TODO maybe go back to Main?
         }
 
         @Override
         protected void onCancelled() {
             super.onCancelled();
             String conflict = "A SoundClip with name " + fileName + " already exist";
-            Toast.makeText(UploadActivity.this, conflict, Toast.LENGTH_LONG).show();
+            Toast.makeText(act, conflict, Toast.LENGTH_LONG).show();
         }
     }
 }

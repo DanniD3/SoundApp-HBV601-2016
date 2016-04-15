@@ -1,11 +1,15 @@
 package thepack.soundapp;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
@@ -23,7 +27,7 @@ import thepack.soundapp.adapters.SoundResultAdapter;
 import thepack.soundapp.entities.SoundResult;
 import thepack.soundapp.utils.Util;
 
-public class SoundClipActivity extends FragmentActivity {
+public class SoundClipFragment extends Fragment {
 
     private Button searchButton;
     private MultiAutoCompleteTextView searchField;
@@ -32,17 +36,27 @@ public class SoundClipActivity extends FragmentActivity {
     private SoundResultAdapter srAdapter;
     private List<SoundResult> results;
 
+    private Activity act;
+
     private static final String REST_SEARCH_URL =
             "http://" + Util.HOST_URL + "/rest/api/soundclip/crud/";
 
     @Override
-    protected void onCreate(final Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sound_clip);
 
-        searchField = (MultiAutoCompleteTextView) findViewById(R.id.searchField);
-        searchButton = (Button) findViewById(R.id.searchButton);
-        resultListView = (ListView) findViewById(R.id.searchResults);
+        // Store the calling activity for reference
+        act = getActivity();
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_sound_clip, container, false);
+
+        searchField = (MultiAutoCompleteTextView) rootView.findViewById(R.id.searchField);
+        searchButton = (Button) rootView.findViewById(R.id.searchButton);
+        resultListView = (ListView) rootView.findViewById(R.id.searchResults);
         resultListView.setClickable(true);
 
         searchField.setOnKeyListener(new View.OnKeyListener() {
@@ -81,11 +95,11 @@ public class SoundClipActivity extends FragmentActivity {
 
                     // Reset input tools
                     searchField.setError(null);
-                    Util.hideKeyboardFromView(SoundClipActivity.this, searchField);
+                    Util.hideKeyboardFromView(act, searchField);
 
                     // Check for Internet connection
-                    if (!Util.isNetworkAvailableAndConnected(SoundClipActivity.this, CONNECTIVITY_SERVICE)) {
-                        Toast.makeText(SoundClipActivity.this, R.string.error_no_network, Toast.LENGTH_LONG).show();
+                    if (!Util.isNetworkAvailableAndConnected(act, Activity.CONNECTIVITY_SERVICE)) {
+                        Toast.makeText(act, R.string.error_no_network, Toast.LENGTH_LONG).show();
                         return;
                     }
 
@@ -102,25 +116,27 @@ public class SoundClipActivity extends FragmentActivity {
                     Display the details of the selected SoundResult in another activity
                  */
                 SoundResult sr = (SoundResult) resultListView.getItemAtPosition(position);
-                Intent detailActivity = new Intent(SoundClipActivity.this, SoundDetailActivity.class);
+                Intent detailActivity = new Intent(act, SoundDetailActivity.class);
                 detailActivity.putExtra("SoundResult", sr);
                 startActivity(detailActivity);
             }
         });
+
+        return rootView;
     }
 
     /*
-        Displays search results in the ListView
-     */
+            Displays search results in the ListView
+         */
     private void displayResults() {
         if (results == null) return;
 
         // Need to execute on separate thread to update UI
-        runOnUiThread(new Runnable() {
+        act.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 srAdapter = new SoundResultAdapter(
-                        SoundClipActivity.this,
+                        act,
                         R.layout.view_search_result,
                         results
                 );
@@ -163,7 +179,7 @@ public class SoundClipActivity extends FragmentActivity {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            Toast.makeText(SoundClipActivity.this, s, Toast.LENGTH_LONG).show();
+            Toast.makeText(act, s, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -197,7 +213,7 @@ public class SoundClipActivity extends FragmentActivity {
         protected void onPostExecute(List<SoundResult> soundResults) {
             super.onPostExecute(soundResults);
             String numResultsDisplay = "There are " + soundResults.size() + " results matching your query";
-            Toast.makeText(SoundClipActivity.this, numResultsDisplay, Toast.LENGTH_LONG).show();
+            Toast.makeText(act, numResultsDisplay, Toast.LENGTH_LONG).show();
 
             results = soundResults;
             displayResults();
@@ -208,7 +224,7 @@ public class SoundClipActivity extends FragmentActivity {
             super.onCancelled();
 
             clearResults();
-            Toast.makeText(SoundClipActivity.this, "No Results found", Toast.LENGTH_LONG).show();
+            Toast.makeText(act, "No Results found", Toast.LENGTH_LONG).show();
         }
     }
 }

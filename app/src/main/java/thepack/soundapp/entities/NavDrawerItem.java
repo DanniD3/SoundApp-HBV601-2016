@@ -1,12 +1,9 @@
 package thepack.soundapp.entities;
 
 public class NavDrawerItem {
+
     private boolean showNotify;
     private String title;
-
-    public NavDrawerItem() {
-
-    }
 
     public NavDrawerItem(boolean showNotify, String title) {
         this.showNotify = showNotify;

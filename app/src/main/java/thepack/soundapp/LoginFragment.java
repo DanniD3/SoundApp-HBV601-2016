@@ -3,22 +3,19 @@ package thepack.soundapp;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.json.JSONException;
 
@@ -27,18 +24,22 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import thepack.soundapp.entities.User;
+import thepack.soundapp.models.Navigation;
 import thepack.soundapp.utils.Util;
 
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends FragmentActivity {
+public class LoginFragment extends Fragment {
 
     /**
      * Id to identity READ_CONTACTS permission request.
      */
     private static final String REST_USER_URL =
             "http://" + Util.HOST_URL + "/rest/api/user/crud/";
+
+
+    private MainActivity act;
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -50,20 +51,22 @@ public class LoginActivity extends FragmentActivity {
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    private GoogleApiClient client;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+
+        act = (MainActivity) getActivity();
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_login, container, false);
 
         // Set up the login form.
-        mNameView = (EditText) findViewById(R.id.name);
-        mPasswordView = (EditText) findViewById(R.id.password);
+        mNameView = (EditText) rootView.findViewById(R.id.name);
+        mPasswordView = (EditText) rootView.findViewById(R.id.password);
 
         /*
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -77,8 +80,7 @@ public class LoginActivity extends FragmentActivity {
             }
         }); */
 
-
-        Button mNameSignInButton = (Button) findViewById(R.id.name_sign_in_button);
+        Button mNameSignInButton = (Button) rootView.findViewById(R.id.name_sign_in_button);
         mNameSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -86,13 +88,11 @@ public class LoginActivity extends FragmentActivity {
             }
         });
 
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
-    }
+        mLoginFormView = rootView.findViewById(R.id.login_form);
+        mProgressView = rootView.findViewById(R.id.login_progress);
 
+        return rootView;
+    }
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -178,47 +178,6 @@ public class LoginActivity extends FragmentActivity {
         }
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Login Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app deep link URI is correct.
-                Uri.parse("android-app://thepack.soundapp/http/host/path")
-        );
-        AppIndex.AppIndexApi.start(client, viewAction);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Login Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app deep link URI is correct.
-                Uri.parse("android-app://thepack.soundapp/http/host/path")
-        );
-        AppIndex.AppIndexApi.end(client, viewAction);
-        client.disconnect();
-    }
-
-
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
@@ -260,14 +219,14 @@ public class LoginActivity extends FragmentActivity {
 
             // TODO: User Registration
             if (responseUser == null) {
-                Toast.makeText(LoginActivity.this, R.string.error_incorrect_name, Toast.LENGTH_LONG).show();
+                Toast.makeText(act, R.string.error_incorrect_name, Toast.LENGTH_LONG).show();
             } else {
                 if (!responseUser.getPw().equals(mPassword)) {
                     // TODO mPassword hashing
-                    Toast.makeText(LoginActivity.this, R.string.error_incorrect_password, Toast.LENGTH_LONG).show();
+                    Toast.makeText(act, R.string.error_incorrect_password, Toast.LENGTH_LONG).show();
                 } else {
-                    finish();
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                    // TODO finish Login and go back to Main and set user to Navigation
+                    act.displayView(Navigation.NAV_HOME);
                 }
             }
         }

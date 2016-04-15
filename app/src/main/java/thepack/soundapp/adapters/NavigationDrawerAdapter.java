@@ -17,10 +17,8 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
 
     List<NavDrawerItem> data = Collections.emptyList();
     private LayoutInflater inflater;
-    private Context context;
 
     public NavigationDrawerAdapter(Context context, List<NavDrawerItem> data) {
-        this.context = context;
         inflater = LayoutInflater.from(context);
         this.data = data;
     }
@@ -33,8 +31,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = inflater.inflate(R.layout.nav_drawer_row, parent, false);
-        MyViewHolder holder = new MyViewHolder(view);
-        return holder;
+        return new MyViewHolder(view);
     }
 
     @Override
@@ -53,7 +50,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
 
         public MyViewHolder(View itemView) {
             super(itemView);
-            title = (TextView) itemView.findViewById(R.id.title);
+            title = (TextView) itemView.findViewById(R.id.nav_item_title);
         }
     }
 }
