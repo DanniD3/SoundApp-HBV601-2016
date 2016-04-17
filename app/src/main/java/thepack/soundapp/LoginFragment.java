@@ -24,22 +24,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import thepack.soundapp.entities.User;
-import thepack.soundapp.models.Navigation;
 import thepack.soundapp.utils.Util;
 
 /**
  * A login screen that offers login via email/password.
  */
 public class LoginFragment extends Fragment {
-
-    /**
-     * Id to identity READ_CONTACTS permission request.
-     */
-    private static final String REST_USER_URL =
-            "http://" + Util.HOST_URL + "/rest/api/user/crud/";
-
-
-    private MainActivity act;
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -52,10 +42,16 @@ public class LoginFragment extends Fragment {
     private View mProgressView;
     private View mLoginFormView;
 
+    private MainActivity act;
+
+    private static final String REST_USER_URL =
+            "http://" + Util.HOST_URL + "/rest/api/user/crud/";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Store the calling activity as MainActivity for reference and changing user
         act = (MainActivity) getActivity();
     }
 
@@ -226,7 +222,9 @@ public class LoginFragment extends Fragment {
                     Toast.makeText(act, R.string.error_incorrect_password, Toast.LENGTH_LONG).show();
                 } else {
                     // TODO finish Login and go back to Main and set user to Navigation
-                    act.displayView(Navigation.NAV_HOME);
+                    Bundle data = new Bundle();
+                    data.putString("username", responseUser.getName());
+                    act.displayHome(data);
                 }
             }
         }

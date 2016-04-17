@@ -32,7 +32,7 @@ public class UploadFragment extends Fragment {
 
     private File uploadFile;
 
-    private Activity act;
+    private MainActivity act;
 
     private static final int FILE_SELECT_CODE = 0;
     private static final String REST_UPLOAD_URL =
@@ -43,7 +43,7 @@ public class UploadFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         // Store the calling activity for reference
-        act = getActivity();
+        act = (MainActivity) getActivity();
     }
 
     @Nullable
@@ -98,6 +98,9 @@ public class UploadFragment extends Fragment {
         }
     }
 
+    /**
+     * An AsyncTask that uploads the selected file
+     */
     private class UploadTask extends AsyncTask<Void,Void,String> {
 
         String fileEncData;
@@ -110,7 +113,7 @@ public class UploadFragment extends Fragment {
             this.fileEncData = Util.encodeFile(act, uploadFile);
             this.fileName = uploadFile.getName();
             this.fileExt = upFileExt;
-            this.uploader = null;
+            this.uploader = act.getUser();
             this.isPrivate = false;
         }
 
@@ -120,10 +123,7 @@ public class UploadFragment extends Fragment {
             HttpURLConnection conn = null;
             try {
                 conn = (HttpURLConnection) new URL(REST_UPLOAD_URL).openConnection();
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type","application/json");
-                conn.setDoOutput(true);
-                conn.setChunkedStreamingMode(2048);
+                conn = Util.setPostConnection(conn);
 
                 // POST Upload JSON SoundClip
                 JSONObject POST_PARAM = new JSONObject();

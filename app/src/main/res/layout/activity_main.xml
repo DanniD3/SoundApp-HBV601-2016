@@ -28,52 +28,7 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
-            android:id="@+id/container_body">
-
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center">
-
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/title_activity_search"
-                    android:id="@+id/search" />
-
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/title_activity_upload"
-                    android:id="@+id/upload" />
-
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/title_activity_login"
-                    android:id="@+id/login" />
-
-            </LinearLayout>
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="@string/app_name"
-                    android:id="@+id/app_name"
-                    android:layout_gravity="center_horizontal|top"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginTop="73dp"
-                    android:layout_alignParentStart="false"
-                    android:layout_centerHorizontal="true" />
-            </RelativeLayout>
-        </FrameLayout>
+            android:id="@+id/container_body"/>
 
     </LinearLayout>
 

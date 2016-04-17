@@ -125,9 +125,9 @@ public class SoundClipFragment extends Fragment {
         return rootView;
     }
 
-    /*
-            Displays search results in the ListView
-         */
+    /**
+     * Displays search results in the ListView
+     */
     private void displayResults() {
         if (results == null) return;
 
@@ -145,8 +145,8 @@ public class SoundClipFragment extends Fragment {
         });
     }
 
-    /*
-        Clears all search results in the ListView
+    /**
+     * Clears all search results in the ListView
      */
     private void clearResults() {
         if (results != null) results.clear();
@@ -183,6 +183,9 @@ public class SoundClipFragment extends Fragment {
         }
     }
 
+    /**
+     * An AsyncTask that queries the server for a result
+     */
     private class SearchTask extends AsyncTask<String, Void, List<SoundResult>> {
 
         @Override

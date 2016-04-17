@@ -16,7 +16,6 @@ import thepack.soundapp.models.Navigation;
 
 public class MainActivity extends AppCompatActivity implements FragmentNavigationDrawer.FragmentDrawerListener {
 
-    private Button loginButton, uploadButton, searchButton;
     private Toolbar toolbar;
     private FragmentNavigationDrawer drawer;
     private Navigation nav = new Navigation();
@@ -35,30 +34,8 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigatio
         drawer.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.layout_main), toolbar);
         drawer.setDrawerListener(this);
 
-        // TODO move the main screen into a MainFragment
-        loginButton = (Button) findViewById(R.id.login);
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                displayView(Navigation.NAV_LOGIN);
-            }
-        });
-
-        uploadButton = (Button) findViewById(R.id.upload);
-        uploadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                displayView(Navigation.NAV_UPLOAD);
-            }
-        });
-
-        searchButton = (Button) findViewById(R.id.search);
-        searchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                displayView(Navigation.NAV_SEARCH);
-            }
-        });
+        // Start up with MainFragment
+        displayView(Navigation.NAV_HOME);
     }
 
     @Override
@@ -90,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigatio
 
     /**
      * Displays the selected View from Navigation
+     *
      * @param position is the position of the item selected from the Nav bar
      */
     public void displayView(int position) {
@@ -99,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigatio
         // Check for selected view
         switch (position) {
             case Navigation.NAV_HOME:
-//                fragment = new MainFragment();
+                fragment = new MainFragment();
                 break;
             case Navigation.NAV_SEARCH:
                 fragment = new SoundClipFragment();
@@ -130,18 +108,34 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigatio
         }
     }
 
+    /**
+     * Displays MainFragment and updates User without other Fragments or Activities
+     * knowing the existence of Navigation
+     *
+     * @param data is a Bundle that may hold transfer data between Fragments or Activities
+     */
+    public void displayHome(Bundle data) {
+        displayView(Navigation.NAV_HOME);
+        String username = data.getString("username");
+        if (username != null) {
+            nav.setUsername(username);
+        }
+    }
+
+    /**
+     * Returns the name of the current user
+     */
+    public String getUser() {
+        return nav.getUsername();
+    }
+
     @Override
     public void onBackPressed() {
+        // Displays MainFragment if in other Fragment, otherwise quit
         if (nav.isAtHome())
             super.onBackPressed();
         else {
             displayView(Navigation.NAV_HOME);
-            // TODO remove below when MainFragment is finished
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.remove(fragmentManager.findFragmentById(R.id.container_body));
-            fragmentTransaction.commit();
-            nav.setNavState(Navigation.NAV_HOME);
         }
     }
 }

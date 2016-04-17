@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.ProtocolException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,9 +34,12 @@ public class Util {
     public static final String HOST_URL = "192.168.1.98:8080";
 //    public static final String HOST_URL = "127.0.0.1:8080";
 
-    /*
-        Extract file data from actual file in storage and encode for transfer
-        @params uploadFile is the file link in storage to be transferred
+    /**
+     * Extract file data from actual file in storage and encode for transfer
+     *
+     * @param c is the context of the calling Activity
+     * @param uploadFile is the file link in storage to be transferred
+     * @return returns the encoded {@param uploadFile}
      */
     public static String encodeFile(Context c, File uploadFile) {
         InputStream in = null;
@@ -66,12 +70,44 @@ public class Util {
         return data;
     }
 
+    /**
+     * Checks the connectivity to the Internet of the device
+     *
+     * @param c is the context of the calling Activity
+     * @param CONNECTIVITY_SERVICE is the network flag of the context
+     * @return true if network is connected, false otherwise
+     */
     public static boolean isNetworkAvailableAndConnected(Context c, String CONNECTIVITY_SERVICE) {
         ConnectivityManager cm = (ConnectivityManager) c.getSystemService(CONNECTIVITY_SERVICE);
         boolean isNetworkAvailable = cm.getActiveNetworkInfo() != null;
         return isNetworkAvailable && cm.getActiveNetworkInfo().isConnected();
     }
 
+    /**
+     * Sets the connection {@param conn} to 'POST' mode
+     *
+     * @param conn is the connected connection
+     * @return the {@param conn} in 'POST' mode
+     */
+    public static HttpURLConnection setPostConnection(HttpURLConnection conn) {
+        try {
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type","application/json");
+            conn.setDoOutput(true);
+            conn.setChunkedStreamingMode(2048);
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        }
+        return conn;
+    }
+
+    /**
+     * Sends the json object {@param POST_PARAM} over the connection {@param conn}
+     *
+     * @param conn is the connected connection
+     * @param POST_PARAM is the json object to be sent
+     * @throws IOException
+     */
     public static void sendPostJSON(HttpURLConnection conn, JSONObject POST_PARAM) throws IOException {
         OutputStream out = new BufferedOutputStream(conn.getOutputStream());
         out.write(POST_PARAM.toString().getBytes("UTF-8"));
@@ -79,6 +115,13 @@ public class Util {
         out.close();
     }
 
+    /**
+     * Receives response from the connected connection {@param conn} as String
+     *
+     * @param conn is the connected connection
+     * @return the response from {@param conn} as String
+     * @throws IOException
+     */
     public static String getResponseString(HttpURLConnection conn) throws IOException {
         InputStream in = conn.getInputStream();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -91,6 +134,13 @@ public class Util {
         return new String(out.toByteArray());
     }
 
+    /**
+     * Parses the received json array string as a list of SoundResults
+     *
+     * @param jsonString is the json array to be parsed
+     * @return a list of SoundResults from the {@param jsonString}
+     * @throws JSONException
+     */
     public static List<SoundResult> parseSoundResultListJson(String jsonString) throws JSONException {
         List<SoundResult> soundResults = new ArrayList<>();
         JSONArray jsonResults = new JSONArray(jsonString);
@@ -111,9 +161,17 @@ public class Util {
         return soundResults;
     }
 
+    /**
+     * Parses the received json object string as a SoundClip
+     *
+     * @param jsonString is the json object to be parsed
+     * @return a SoundClip
+     * @throws JSONException
+     */
     public static SoundClip parseSoundClipJson(String jsonString) throws JSONException {
         JSONObject jsonResult = new JSONObject(jsonString);
-        SoundClip sc = new SoundClip(
+
+        return new SoundClip(
                 jsonResult.getLong("id"),
                 jsonResult.getString("name"),
                 jsonResult.getString("ext"),
@@ -121,9 +179,15 @@ public class Util {
                 jsonResult.getString("uploader"),
                 jsonResult.getBoolean("isPrivate")
         );
-        return sc;
     }
 
+    /**
+     * Parses the received json object string as a User
+     *
+     * @param jsonString is the json object to be parsed
+     * @return a User
+     * @throws JSONException
+     */
     public static User parseUserJson(String jsonString) throws JSONException {
         JSONObject userJson = new JSONObject(jsonString);
 
@@ -134,6 +198,12 @@ public class Util {
         );
     }
 
+    /**
+     * Hides the device's keyboard from view
+     *
+     * @param c is the context of the calling Activity
+     * @param v is the input view
+     */
     public static void hideKeyboardFromView(Context c, View v) {
         InputMethodManager imm = (InputMethodManager) c.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
