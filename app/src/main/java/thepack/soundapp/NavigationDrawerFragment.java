@@ -13,27 +13,38 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import thepack.soundapp.adapters.NavigationDrawerAdapter;
 import thepack.soundapp.entities.NavDrawerItem;
+import thepack.soundapp.models.Navigation;
 
-public class FragmentNavigationDrawer extends Fragment {
+public class NavigationDrawerFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
     private NavigationDrawerAdapter adapter;
     private View containerView;
-    private static String[] titles = null;
     private FragmentDrawerListener drawerListener;
+    private ImageView mUserIcon;
+    private TextView mUsername;
+
+    private static String[] titles = null;
 
     public void setDrawerListener(FragmentDrawerListener listener) {
         this.drawerListener = listener;
     }
 
+    /**
+     * Converts titles into a list of NavDrawerItems to be used in the navigation drawer
+     *
+     * @return a list of NavDrawerItems
+     */
     public static List<NavDrawerItem> getData() {
         List<NavDrawerItem> data = new ArrayList<>();
 
@@ -75,9 +86,37 @@ public class FragmentNavigationDrawer extends Fragment {
             }
         }));
 
+        mUserIcon = (ImageView) layout.findViewById(R.id.icon_user);
+        mUsername = (TextView) layout.findViewById(R.id.icon_username);
+
         return layout;
     }
 
+    /**
+     * Updates the displayed username with {@param username} along with sign in/out button
+     *
+     * @param username is the username to be replaced
+     */
+    public void updateUser(String username) {
+        mUsername.setText(username);
+
+        String label;
+        if (username == null) {
+            label = getResources().getString(R.string.nav_item_login);
+        } else {
+            label = getResources().getString(R.string.nav_item_logout);
+        }
+        adapter.replaceItem(new NavDrawerItem(false, label), Navigation.NAV_LOGIN);
+    }
+
+    /**
+     * Hooks the navigation drawer onto {@param drawerLayout} by replacing {@param fragmentId}
+     * and adds a drawer switch onto {@param toolbar}
+     *
+     * @param fragmentId is the container fragment id to be replaced
+     * @param drawerLayout is the layout of the activity to be attached
+     * @param toolbar is the toolbar for the switch button
+     */
     public void setUp(int fragmentId, DrawerLayout drawerLayout, final Toolbar toolbar) {
         containerView = getActivity().findViewById(fragmentId);
         mDrawerLayout = drawerLayout;
@@ -159,6 +198,10 @@ public class FragmentNavigationDrawer extends Fragment {
         }
     }
 
+    /**
+     * An interface to be implemented by the attached activity for when items
+     * in the drawer are selected
+     */
     public interface FragmentDrawerListener {
         public void onDrawerItemSelected(View view, int position);
     }

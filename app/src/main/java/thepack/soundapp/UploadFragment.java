@@ -113,7 +113,7 @@ public class UploadFragment extends Fragment {
             this.fileEncData = Util.encodeFile(act, uploadFile);
             this.fileName = uploadFile.getName();
             this.fileExt = upFileExt;
-            this.uploader = act.getUser();
+            this.uploader = act.getUser().isEmpty()? null : act.getUser();
             this.isPrivate = false;
         }
 

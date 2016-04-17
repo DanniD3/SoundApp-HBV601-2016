@@ -5,6 +5,7 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -29,9 +30,10 @@ public class FileChooserActivity extends ListActivity {
         fill(currentDir);
     }
 
-    /*
-        Lists all the folders and files of the current directory
-        @params currentDir the File object holding the current directory
+    /**
+     * Lists all the folders and files of the current directory
+     *
+     * @param currentDir the File object holding the current directory
      */
     private void fill(File currentDir) {
         this.setTitle("Current Directory: " + currentDir.getName());
@@ -65,6 +67,26 @@ public class FileChooserActivity extends ListActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        Option o = adapter.getItem(0);
+        // Move up a folder when back
+        if(o.getData().equalsIgnoreCase("folder") ||
+                o.getData().equalsIgnoreCase("parent directory")){
+            currentDir = new File(o.getPath());
+            fill(currentDir);
+            Toast.makeText(this, R.string.file_back_hold, Toast.LENGTH_SHORT).show();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) finish();
+        return super.onKeyLongPress(keyCode, event);
+    }
+
+    @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
         Option o = adapter.getItem(position);
@@ -77,6 +99,10 @@ public class FileChooserActivity extends ListActivity {
         }
     }
 
+    /**
+     * Handler for file click on option {@param o}
+     * @param o is the select Option
+     */
     private void onFileClick(Option o) {
         Toast.makeText(this, "File Selected: " + o.getName(), Toast.LENGTH_SHORT).show();
         Intent uploadFile = new Intent();

@@ -37,6 +37,6 @@ public class Navigation {
     }
 
     public void logout() {
-        this.username = "";
+        this.username = null;
     }
 }

@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
@@ -31,6 +32,7 @@ public class SoundDetailActivity extends AppCompatActivity {
     private TextView uploaderView;
     private Button playButton;
     private Button downloadButton;
+    private Toolbar toolbar;
 
     private static final String REST_SEARCH_URL =
             "http://" + Util.HOST_URL + "/rest/api/soundclip/crud/";
@@ -41,6 +43,10 @@ public class SoundDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sound_detail);
+
+        toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Search");
 
         // Get the SoundResult to be displayed
         sr = (SoundResult) getIntent().getSerializableExtra("SoundResult");

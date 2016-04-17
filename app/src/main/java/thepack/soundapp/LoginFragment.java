@@ -244,10 +244,7 @@ public class LoginFragment extends Fragment {
                     Toast.makeText(act, R.string.error_incorrect_password, Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(act, R.string.success_sign_in, Toast.LENGTH_LONG).show();
-
-                    Bundle data = new Bundle();
-                    data.putString("username", responseUser.getName());
-                    act.displayHome(data);
+                    act.displayHome(responseUser.getName());
                 }
             }
         }

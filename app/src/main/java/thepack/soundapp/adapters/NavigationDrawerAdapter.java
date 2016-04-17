@@ -23,9 +23,25 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
         this.data = data;
     }
 
+    /**
+     * Deletes item at {@param position}
+     *
+     * @param position is the position of the item to be deleted
+     */
     public void delete(int position) {
         data.remove(position);
         notifyItemRemoved(position);
+    }
+
+    /**
+     * Replaces the item at {@param position} with {@param item}
+     *
+     * @param item is the replacing item
+     * @param position is the position of the replaced item in data
+     */
+    public void replaceItem(NavDrawerItem item, int position) {
+        data.set(position, item);
+        notifyItemChanged(position);
     }
 
     @Override

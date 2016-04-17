@@ -10,14 +10,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.Toast;
 
 import thepack.soundapp.models.Navigation;
 
-public class MainActivity extends AppCompatActivity implements FragmentNavigationDrawer.FragmentDrawerListener {
+public class MainActivity extends AppCompatActivity implements NavigationDrawerFragment.FragmentDrawerListener {
 
     private Toolbar toolbar;
-    private FragmentNavigationDrawer drawer;
+    private NavigationDrawerFragment drawer;
     private Navigation nav = new Navigation();
 
     @Override
@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigatio
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        drawer = (FragmentNavigationDrawer)
+        drawer = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
         drawer.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.layout_main), toolbar);
         drawer.setDrawerListener(this);
@@ -78,6 +78,11 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigatio
         switch (position) {
             case Navigation.NAV_HOME:
                 fragment = new MainFragment();
+                if (nav.getUsername() != null) {
+                    Bundle data = new Bundle();
+                    data.putString("username", nav.getUsername());
+                    fragment.setArguments(data);
+                }
                 break;
             case Navigation.NAV_SEARCH:
                 fragment = new SoundClipFragment();
@@ -88,8 +93,12 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigatio
                 title = getString(R.string.title_upload);
                 break;
             case Navigation.NAV_LOGIN:
-                fragment = new LoginFragment();
-                title = getString(R.string.title_login);
+                if (nav.getUsername() == null) {
+                    fragment = new LoginFragment();
+                    title = getString(R.string.title_login);
+                } else {
+                    logout();
+                }
                 break;
             default:
                 break;
@@ -111,15 +120,23 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigatio
     /**
      * Displays MainFragment and updates User without other Fragments or Activities
      * knowing the existence of Navigation
-     *
-     * @param data is a Bundle that may hold transfer data between Fragments or Activities
      */
-    public void displayHome(Bundle data) {
+    public void displayHome(String username) {
+        nav.setUsername(username);
+        drawer.updateUser(username);
         displayView(Navigation.NAV_HOME);
-        String username = data.getString("username");
-        if (username != null) {
-            nav.setUsername(username);
+    }
+
+    /**
+     * Signs out the signed in User and update Navigation model and navigation bar
+     */
+    public void logout() {
+        if (nav.getNavState() == Navigation.NAV_HOME) {
+            ((MainFragment) getSupportFragmentManager().findFragmentById(R.id.container_body)).logout();
         }
+        nav.logout();
+        drawer.updateUser(null);
+        Toast.makeText(this, R.string.success_sign_out, Toast.LENGTH_LONG).show();
     }
 
     /**

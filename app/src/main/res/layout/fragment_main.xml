@@ -14,19 +14,19 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/title_activity_search"
+            android:text="@string/main_fragment_search"
             android:id="@+id/search" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/title_activity_upload"
+            android:text="@string/main_fragment_upload"
             android:id="@+id/upload" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/title_activity_login"
+            android:text="@string/main_fragment_login"
             android:id="@+id/login" />
 
     </LinearLayout>

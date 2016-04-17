@@ -28,11 +28,11 @@ public class MainFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        loginButton = (Button) rootView.findViewById(R.id.login);
-        loginButton.setOnClickListener(new View.OnClickListener() {
+        searchButton = (Button) rootView.findViewById(R.id.search);
+        searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                act.displayView(Navigation.NAV_LOGIN);
+                act.displayView(Navigation.NAV_SEARCH);
             }
         });
 
@@ -44,13 +44,63 @@ public class MainFragment extends Fragment{
             }
         });
 
-        searchButton = (Button) rootView.findViewById(R.id.search);
-        searchButton.setOnClickListener(new View.OnClickListener() {
+        String username;
+        try {
+            username = getArguments().getString("username");
+        } catch (NullPointerException e) {
+            username = null;
+        }
+        loginButton = (Button) rootView.findViewById(R.id.login);
+        if (username != null) {
+            loginButton.setText(R.string.main_fragment_logout);
+            loginButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    act.logout();
+                }
+            });
+        } else {
+            loginButton = setLoginListener(loginButton);
+        }
+        return rootView;
+    }
+
+    /**
+     * Signs out the user and update the buttons
+     */
+    public void logout() {
+        updateButtonText(R.string.main_fragment_login);
+        loginButton.setOnClickListener(null);
+        loginButton = setLoginListener(loginButton);
+    }
+
+    /**
+     * Updates the text on the loginButton with the resource with id {@param stringID}
+     *
+     * @param stringID is the ID of the string resource
+     */
+    private void updateButtonText(final int stringID) {
+        act.runOnUiThread(new Runnable() {
             @Override
-            public void onClick(View v) {
-                act.displayView(Navigation.NAV_SEARCH);
+            public void run() {
+                loginButton.setText(stringID);
             }
         });
-        return rootView;
+    }
+
+    /**
+     * Sets the login onClick listener on button {@param b}
+     *
+     * @param b is the Button object to be clicked
+     * @return a {@param b} that listens to click
+     */
+    private Button setLoginListener(Button b) {
+        b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                act.displayView(Navigation.NAV_LOGIN);
+            }
+        });
+        return b;
     }
 }

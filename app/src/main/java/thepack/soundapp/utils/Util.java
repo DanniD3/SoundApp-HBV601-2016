@@ -31,7 +31,8 @@ import thepack.soundapp.entities.User;
 
 public class Util {
 
-    public static final String HOST_URL = "10.0.2.2:8080";
+    public static final String HOST_URL = "192.168.1.98:8080";
+//    public static final String HOST_URL = "10.0.2.2:8080";
 //    public static final String HOST_URL = "127.0.0.1:8080";
 
     /**
@@ -42,15 +43,15 @@ public class Util {
      * @return returns the encoded {@param uploadFile}
      */
     public static String encodeFile(Context c, File uploadFile) {
-        InputStream in = null;
-        ByteArrayOutputStream out = null;
+        InputStream in;
+        ByteArrayOutputStream out;
         String data = null;
         try {
             byte[] buffer = new byte[2048];
             in = new FileInputStream(uploadFile);
             out = new ByteArrayOutputStream((int)uploadFile.length());
 
-            int read = 0;
+            int read;
             while ((read = in.read(buffer)) != -1) {
                 out.write(buffer, 0, read);
             }
@@ -125,7 +126,7 @@ public class Util {
     public static String getResponseString(HttpURLConnection conn) throws IOException {
         InputStream in = conn.getInputStream();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int bytesRead = 0;
+        int bytesRead;
         byte[] buffer = new byte[1024];
         while ((bytesRead = in.read(buffer)) > 0) {
             out.write(buffer, 0, bytesRead);
