@@ -216,12 +216,11 @@ public class LoginFragment extends Fragment {
                         throw new IOException(conn.getResponseMessage() +": with " + REST_USER_URL);
                     }
 
+                    // Attempt login again after User has been created
                     conn.disconnect();
                     conn = (HttpURLConnection) new URL(REST_USER_URL + mName).openConnection();
                 }
-
                 responseUser = Util.parseUserJson(Util.getResponseString(conn));
-
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
             } finally {
@@ -244,8 +243,6 @@ public class LoginFragment extends Fragment {
                     // TODO mPassword hashing
                     Toast.makeText(act, R.string.error_incorrect_password, Toast.LENGTH_LONG).show();
                 } else {
-
-                    // TODO finish Login and go back to Main and set user to Navigation
                     Toast.makeText(act, R.string.success_sign_in, Toast.LENGTH_LONG).show();
 
                     Bundle data = new Bundle();
