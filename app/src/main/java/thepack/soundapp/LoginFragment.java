@@ -97,6 +97,7 @@ public class LoginFragment extends Fragment {
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
+        Util.hideKeyboardFromView(act,mPasswordView);
         if (mAuthTask != null) {
             return;
         }
@@ -193,22 +194,33 @@ public class LoginFragment extends Fragment {
         protected User doInBackground(Void... params) {
             User responseUser = null;
             HttpURLConnection conn = null;
+
             try {
                 conn = (HttpURLConnection) new URL(REST_USER_URL + mName).openConnection();
 
+                // If no user is found, create new user
                 if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    throw new IOException(conn.getResponseMessage() +": with " + REST_USER_URL);
-                }
-                responseUser = Util.parseUserJson(Util.getResponseString(conn));
 
-                if(responseUser == null){
+                    // Disconnect and reconnect
+                    conn.disconnect();
+                    conn = (HttpURLConnection) new URL(REST_USER_URL).openConnection();
+
+                    // set to POST
                     conn = Util.setPostConnection(conn);
                     JSONObject POST_PARAM = new JSONObject();
                     POST_PARAM.put("name", mName);
                     POST_PARAM.put("pw", mPassword);
                     Util.sendPostJSON(conn, POST_PARAM);
 
+                    if (conn.getResponseCode() != HttpURLConnection.HTTP_CREATED){
+                        throw new IOException(conn.getResponseMessage() +": with " + REST_USER_URL);
+                    }
+
+                    conn.disconnect();
+                    conn = (HttpURLConnection) new URL(REST_USER_URL + mName).openConnection();
                 }
+
+                responseUser = Util.parseUserJson(Util.getResponseString(conn));
 
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
@@ -225,7 +237,6 @@ public class LoginFragment extends Fragment {
             mAuthTask = null;
             showProgress(false);
 
-            // TODO: User Registration
             if (responseUser == null) {
                 Toast.makeText(act, R.string.error_incorrect_name, Toast.LENGTH_LONG).show();
             } else {
@@ -233,7 +244,10 @@ public class LoginFragment extends Fragment {
                     // TODO mPassword hashing
                     Toast.makeText(act, R.string.error_incorrect_password, Toast.LENGTH_LONG).show();
                 } else {
+
                     // TODO finish Login and go back to Main and set user to Navigation
+                    Toast.makeText(act, R.string.success_sign_in, Toast.LENGTH_LONG).show();
+
                     Bundle data = new Bundle();
                     data.putString("username", responseUser.getName());
                     act.displayHome(data);
