@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -194,10 +195,21 @@ public class LoginFragment extends Fragment {
             HttpURLConnection conn = null;
             try {
                 conn = (HttpURLConnection) new URL(REST_USER_URL + mName).openConnection();
+
                 if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
                     throw new IOException(conn.getResponseMessage() +": with " + REST_USER_URL);
                 }
                 responseUser = Util.parseUserJson(Util.getResponseString(conn));
+
+                if(responseUser == null){
+                    conn = Util.setPostConnection(conn);
+                    JSONObject POST_PARAM = new JSONObject();
+                    POST_PARAM.put("name", mName);
+                    POST_PARAM.put("pw", mPassword);
+                    Util.sendPostJSON(conn, POST_PARAM);
+
+                }
+
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
             } finally {

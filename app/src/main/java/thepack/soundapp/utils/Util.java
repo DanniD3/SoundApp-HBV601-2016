@@ -31,7 +31,7 @@ import thepack.soundapp.entities.User;
 
 public class Util {
 
-    public static final String HOST_URL = "192.168.1.98:8080";
+    public static final String HOST_URL = "10.0.2.2:8080";
 //    public static final String HOST_URL = "127.0.0.1:8080";
 
     /**
