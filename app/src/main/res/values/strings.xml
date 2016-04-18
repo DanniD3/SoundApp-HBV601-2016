@@ -52,6 +52,12 @@
     <!-- Strings related to search -->
     <string name="prompt_query">Search</string>
     <string name="search_button">Search</string>
+    <string name="search_invalid">No response from server.</string>
+
+    <!-- Strings related to sound clip -->
+    <string name="button_play">Play</string>
+    <string name="button_stop">Stop</string>
+    <string name="button_download">Download</string>
 
     <!-- Strings related to login -->
     <string name="prompt_name">Username</string>

@@ -215,11 +215,15 @@ public class SoundClipFragment extends Fragment {
         @Override
         protected void onPostExecute(List<SoundResult> soundResults) {
             super.onPostExecute(soundResults);
-            String numResultsDisplay = "There are " + soundResults.size() + " results matching your query";
-            Toast.makeText(act, numResultsDisplay, Toast.LENGTH_LONG).show();
+            try {
+                String numResultsDisplay = "There are " + soundResults.size() + " results matching your query";
+                Toast.makeText(act, numResultsDisplay, Toast.LENGTH_LONG).show();
 
-            results = soundResults;
-            displayResults();
+                results = soundResults;
+                displayResults();
+            } catch (NullPointerException e) {
+                Toast.makeText(act, R.string.search_invalid, Toast.LENGTH_LONG).show();
+            }
         }
 
         @Override

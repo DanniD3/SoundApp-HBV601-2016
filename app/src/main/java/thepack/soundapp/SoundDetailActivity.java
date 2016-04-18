@@ -1,5 +1,8 @@
 package thepack.soundapp;
 
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -34,6 +37,7 @@ public class SoundDetailActivity extends AppCompatActivity {
     private Button downloadButton;
     private Toolbar toolbar;
 
+    private MediaPlayer mp;
     private static final String REST_SEARCH_URL =
             "http://" + Util.HOST_URL + "/rest/api/soundclip/crud/";
 
@@ -50,6 +54,7 @@ public class SoundDetailActivity extends AppCompatActivity {
 
         // Get the SoundResult to be displayed
         sr = (SoundResult) getIntent().getSerializableExtra("SoundResult");
+        mp = new MediaPlayer();
 
         // Display details
         titleView = (TextView) findViewById(R.id.detailTitle);
@@ -65,14 +70,7 @@ public class SoundDetailActivity extends AppCompatActivity {
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Check for Internet connection
-                if (!Util.isNetworkAvailableAndConnected(SoundDetailActivity.this, CONNECTIVITY_SERVICE)) {
-                    Toast.makeText(SoundDetailActivity.this, R.string.error_no_network, Toast.LENGTH_LONG).show();
-                    return;
-                }
-                // Retrieve actual SoundClip from server
-                Toast.makeText(SoundDetailActivity.this, "Streaming...", Toast.LENGTH_LONG).show();
-                new FetchTask(FetchTask.STREAM).execute(sr.getId());
+                handlePlay();
             }
         });
         downloadButton = (Button) findViewById(R.id.downButton);
@@ -91,29 +89,120 @@ public class SoundDetailActivity extends AppCompatActivity {
         });
     }
 
-    /*
-        Plays the selected SoundClip
-        {@params sc} is the sound clip to be played
-     */
-    private void playSoundClip(SoundClip sc) {
-        // TODO Stream play SoundClip
-        Toast.makeText(SoundDetailActivity.this, "Play has not yet been implemented.", Toast.LENGTH_LONG).show();
-        // TODO implement actual stream play
+    private void handlePlay() {
+        // Check for Internet connection
+        if (!Util.isNetworkAvailableAndConnected(SoundDetailActivity.this, CONNECTIVITY_SERVICE)) {
+            Toast.makeText(SoundDetailActivity.this, R.string.error_no_network, Toast.LENGTH_LONG).show();
+            return;
+        }
+        // Retrieve actual SoundClip from server
+        Toast.makeText(SoundDetailActivity.this, "Streaming...", Toast.LENGTH_LONG).show();
+        new FetchTask(FetchTask.STREAM).execute(sr.getId());
     }
 
-    /*
-        Stores the selected SoundClip into Downloads
-        {@params sc} is the sound clip to be stored
+    private void updatePlay() {
+        // Update text on button
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                playButton.setText(R.string.button_stop);
+            }
+        });
+        // Update stop event
+        playButton.setOnClickListener(null);
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handleStop();
+            }
+        });
+    }
+
+    private void handleStop() {
+        if (mp.isPlaying()){
+            mp.stop();
+            mp.release();
+            mp = null;
+        }
+        // Update text to Play
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                playButton.setText(R.string.button_play);
+            }
+        });
+        // Update play event
+        playButton.setOnClickListener(null);
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handlePlay();
+            }
+        });
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mp != null && mp.isPlaying()) {
+            mp.stop();
+            mp.release();
+            mp = null;
+        }
+        super.onBackPressed();
+    }
+
+    /**
+     * Plays the selected SoundClip
+     *
+     * @param sc is the sound clip to be played
+     */
+    private void playSoundClip(SoundClip sc) {
+        File scPath = storeFile(sc, getCacheDir());
+        if (scPath != null) {
+            // Toast.makeText(SoundDetailActivity.this, "Play has not yet been implemented.", Toast.LENGTH_LONG).show();
+            Toast.makeText(SoundDetailActivity.this,
+                    "Downloaded file size: " + scPath.length() + "kB to cache", Toast.LENGTH_LONG).show();
+            Uri myUri = Uri.fromFile(scPath); // initialize Uri here
+
+            try {
+                mp = new MediaPlayer();
+                mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                mp.setDataSource(getApplicationContext(), myUri);
+                mp.prepare();
+                mp.start();
+                updatePlay();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Stores the selected SoundClip {@param sc} into Downloads
+     *
+     * @param sc is the sound clip to be stored
      */
     private void storeDownload(SoundClip sc) {
-        if (sc == null) return;
+        File scPath = storeFile(sc, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
+        if (scPath != null)
+            Toast.makeText(SoundDetailActivity.this,
+                    "Downloaded file size: " + scPath.length() + "kB", Toast.LENGTH_LONG).show();
+    }
 
-        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+    /**
+     * Stores the file {@param sc} into the directory defined by {@param path}
+     *
+     * @param sc is the sound clip to be stored
+     * @param path is the directory path
+     * @return the size of the stored file
+     */
+    private File storeFile(SoundClip sc, File path) {
+        if (sc == null) return null;
+
         File scPath = new File(path, "/" + sc.getName());
         try {
             if (!scPath.createNewFile()) {
-                // TODO Handles duplicates
-                return;
+                return scPath;
             }
             byte[] buffer = new byte[2048];
             ByteArrayInputStream in = new ByteArrayInputStream(Base64.decode(sc.getData(), Base64.DEFAULT));
@@ -128,8 +217,7 @@ public class SoundDetailActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Toast.makeText(SoundDetailActivity.this, "Downloaded file size: " +
-                (scPath.length()/1024) + "kB", Toast.LENGTH_LONG).show();
+        return scPath;
     }
 
     private class FetchTask extends AsyncTask<Long, Void, SoundClip> {
